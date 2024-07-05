@@ -1,11 +1,11 @@
 import numpy as np
-from PIL import Image, ImageTk, ImageOps, ImageDraw
+from PIL import Image, ImageTk, ImageOps, ImageDraw, ImageFilter
 import tkinter as tk
 from tkinter import filedialog, Scale
 from scipy.spatial import Voronoi
 
 def pixel_prism_window(image, block_size=25):
-    small_image = image.resize((block_size, block_size), Image.ANTIALIAS)
+    small_image = image.resize((block_size, block_size), Image.LANCZOS)
     output_image = Image.new("RGB", image.size)
     original_width, original_height = image.size
     block_width = original_width // block_size
@@ -53,6 +53,9 @@ def voronoi_prism_effect(image, num_points=100):
     
     return output_image
 
+def blur_image(image, radius=2):
+    return image.filter(ImageFilter.GaussianBlur(radius))
+
 def open_image():
     global input_image, output_image, input_img_label, output_img_label
     file_path = filedialog.askopenfilename()
@@ -83,6 +86,8 @@ def process_image(image):
         return posterize_image(image, levels=levels_slider.get())
     elif effect == "Voronoi":
         return voronoi_prism_effect(image, num_points=num_points_slider.get())
+    elif effect == "Blur":
+        return blur_image(image, radius=blur_radius_slider.get())
     else:
         return image
 
@@ -92,14 +97,22 @@ def update_sliders(*args):
         block_size_slider.pack(side=tk.TOP, pady=10)
         levels_slider.pack_forget()
         num_points_slider.pack_forget()
+        blur_radius_slider.pack_forget()
     elif effect == "Posterize":
         block_size_slider.pack_forget()
         levels_slider.pack(side=tk.TOP, pady=10)
         num_points_slider.pack_forget()
+        blur_radius_slider.pack_forget()
     elif effect == "Voronoi":
         block_size_slider.pack_forget()
         levels_slider.pack_forget()
         num_points_slider.pack(side=tk.TOP, pady=10)
+        blur_radius_slider.pack_forget()
+    elif effect == "Blur":
+        block_size_slider.pack_forget()
+        levels_slider.pack_forget()
+        num_points_slider.pack_forget()
+        blur_radius_slider.pack(side=tk.TOP, pady=10)
     update_output_image()
 
 # Initialize the main window
@@ -123,7 +136,7 @@ output_img_label.pack()
 # Option menu to select effect
 effect_var = tk.StringVar(root)
 effect_var.set("Pixel Prism")
-effect_menu = tk.OptionMenu(root, effect_var, "Pixel Prism", "Posterize", "Voronoi", command=update_sliders)
+effect_menu = tk.OptionMenu(root, effect_var, "Pixel Prism", "Posterize", "Voronoi", "Blur", command=update_sliders)
 effect_menu.pack(side=tk.TOP, pady=10)
 
 # Sliders for adjustable parameters
@@ -140,6 +153,11 @@ num_points_slider = Scale(root, from_=10, to=500, orient=tk.HORIZONTAL, label="N
 num_points_slider.set(100)
 num_points_slider.pack(side=tk.TOP, pady=10)
 num_points_slider.pack_forget()
+
+blur_radius_slider = Scale(root, from_=1, to=10, orient=tk.HORIZONTAL, label="Blur Radius", command=update_output_image)
+blur_radius_slider.set(2)
+blur_radius_slider.pack(side=tk.TOP, pady=10)
+blur_radius_slider.pack_forget()
 
 # Buttons to open and save images
 open_button = tk.Button(root, text="Open Image", command=open_image)
