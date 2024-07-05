@@ -6,30 +6,33 @@ from scipy.spatial import Voronoi
 
 def pixel_prism_window(image, block_size=25):
     small_image = image.resize((block_size, block_size), Image.LANCZOS)
-    output_image = Image.new("RGB", image.size)
+    small_pixels = np.array(small_image)
     original_width, original_height = image.size
+    
+    # Create a new image with the same size as the original
+    output_image = Image.new("RGB", image.size)
+    output_pixels = np.array(output_image)
+
+    # Calculate the size of each block
     block_width = original_width // block_size
     block_height = original_height // block_size
-    small_pixels = np.array(small_image)
-    output_pixels = np.array(image)
-    
+
     for i in range(block_size):
         for j in range(block_size):
-            average_color = small_pixels[i, j]
-            for x in range(block_width):
-                for y in range(block_height):
-                    x_pos = i * block_width + x
-                    y_pos = j * block_height + y
-                    if x_pos < original_width and y_pos < original_height:
-                        output_pixels[y_pos, x_pos] = average_color
+            average_color = small_pixels[j, i]
+            x_start = i * block_width
+            y_start = j * block_height
+            x_end = x_start + block_width
+            y_end = y_start + block_height
+            for x in range(x_start, min(x_end, original_width)):
+                for y in range(y_start, min(y_end, original_height)):
+                    output_pixels[y, x] = average_color
     
     return Image.fromarray(output_pixels)
 
 def posterize_image(image, levels=4):
     levels = max(2, min(256, levels))
-    step = 256 // levels
-    posterized_image = ImageOps.posterize(image, 8 - levels.bit_length())
-    return posterized_image
+    return ImageOps.posterize(image, 8 - levels.bit_length())
 
 def voronoi_prism_effect(image, num_points=100):
     width, height = image.size
@@ -66,7 +69,7 @@ def open_image():
 def save_image():
     global output_image
     if output_image:
-        save_path = filedialog.asksaveasfilename(defaultextension=".jpg", filetypes=[("JPEG files", "*.jpg"), ("All files", "*.*")])
+        save_path = filedialog.asksaveasfilename(defaultextension=".jpg", filetypes=[("JPEG files", "*.jpg"), ("PNG files", "*.png"), ("All files", "*.*")])
         if save_path:
             output_image.save(save_path)
 
@@ -117,7 +120,7 @@ def update_sliders(*args):
 
 # Initialize the main window
 root = tk.Tk()
-root.title("Prism Effects")
+root.title("Image Effects")
 
 # Create frames for input and output images
 input_frame = tk.Frame(root)
@@ -163,7 +166,7 @@ blur_radius_slider.pack_forget()
 open_button = tk.Button(root, text="Open Image", command=open_image)
 open_button.pack(side=tk.TOP, pady=10)
 
-save_button = tk.Button(root, text="Save Output Image", command=save_image)
+save_button = tk.Button(root, text="Save Image", command=save_image)
 save_button.pack(side=tk.TOP, pady=10)
 
 # Initialize global variables
