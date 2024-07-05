@@ -86,6 +86,22 @@ def process_image(image):
     else:
         return image
 
+def update_sliders(*args):
+    effect = effect_var.get()
+    if effect == "Pixel Prism":
+        block_size_slider.pack(side=tk.TOP, pady=10)
+        levels_slider.pack_forget()
+        num_points_slider.pack_forget()
+    elif effect == "Posterize":
+        block_size_slider.pack_forget()
+        levels_slider.pack(side=tk.TOP, pady=10)
+        num_points_slider.pack_forget()
+    elif effect == "Voronoi":
+        block_size_slider.pack_forget()
+        levels_slider.pack_forget()
+        num_points_slider.pack(side=tk.TOP, pady=10)
+    update_output_image()
+
 # Initialize the main window
 root = tk.Tk()
 root.title("Prism Effects")
@@ -107,7 +123,7 @@ output_img_label.pack()
 # Option menu to select effect
 effect_var = tk.StringVar(root)
 effect_var.set("Pixel Prism")
-effect_menu = tk.OptionMenu(root, effect_var, "Pixel Prism", "Posterize", "Voronoi", command=update_output_image)
+effect_menu = tk.OptionMenu(root, effect_var, "Pixel Prism", "Posterize", "Voronoi", command=update_sliders)
 effect_menu.pack(side=tk.TOP, pady=10)
 
 # Sliders for adjustable parameters
@@ -118,10 +134,12 @@ block_size_slider.pack(side=tk.TOP, pady=10)
 levels_slider = Scale(root, from_=2, to=256, orient=tk.HORIZONTAL, label="Levels (Posterize)", command=update_output_image)
 levels_slider.set(4)
 levels_slider.pack(side=tk.TOP, pady=10)
+levels_slider.pack_forget()
 
 num_points_slider = Scale(root, from_=10, to=500, orient=tk.HORIZONTAL, label="Number of Points (Voronoi)", command=update_output_image)
 num_points_slider.set(100)
 num_points_slider.pack(side=tk.TOP, pady=10)
+num_points_slider.pack_forget()
 
 # Buttons to open and save images
 open_button = tk.Button(root, text="Open Image", command=open_image)
@@ -136,4 +154,3 @@ output_image = None
 
 # Run the main loop
 root.mainloop()
-
