@@ -1,13 +1,29 @@
 import numpy as np
-from PIL import Image, ImageTk, ImageOps
+from PIL import Image, ImageTk, ImageOps, ImageDraw
 import tkinter as tk
 from tkinter import filedialog
-import os
 from scipy.spatial import Voronoi
 
 def pixel_prism_window(image):
-    # (Existing pixel prism window code)
-    pass
+    small_image = image.resize((25, 25), Image.ANTIALIAS)
+    output_image = Image.new("RGB", image.size)
+    original_width, original_height = image.size
+    block_width = original_width // 25
+    block_height = original_height // 25
+    small_pixels = np.array(small_image)
+    output_pixels = np.array(image)
+    
+    for i in range(25):
+        for j in range(25):
+            average_color = small_pixels[i, j]
+            for x in range(block_width):
+                for y in range(block_height):
+                    x_pos = i * block_width + x
+                    y_pos = j * block_height + y
+                    if x_pos < original_width and y_pos < original_height:
+                        output_pixels[y_pos, x_pos] = average_color
+    
+    return Image.fromarray(output_pixels)
 
 def posterize_image(image, levels=4):
     levels = max(2, min(256, levels))
