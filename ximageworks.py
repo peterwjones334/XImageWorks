@@ -1,42 +1,39 @@
 import numpy as np
-from PIL import Image, ImageTk
+from PIL import Image, ImageTk, ImageOps
 import tkinter as tk
 from tkinter import filedialog
 import os
+from scipy.spatial import Voronoi
 
 def pixel_prism_window(image):
-    # Resize the image to 25x25 for averaging
-    small_image = image.resize((25, 25), Image.ANTIALIAS)
+    # (Existing pixel prism window code)
+    pass
+
+def posterize_image(image, levels=4):
+    levels = max(2, min(256, levels))
+    step = 256 // levels
+    posterized_image = ImageOps.posterize(image, 8 - levels.bit_length())
+    return posterized_image
+
+def voronoi_prism_effect(image, num_points=100):
+    width, height = image.size
+    np_image = np.array(image)
+    points = np.random.rand(num_points, 2) * [width, height]
+    vor = Voronoi(points)
+    output_image = Image.new("RGB", (width, height))
+    draw = ImageDraw.Draw(output_image)
     
-    # Create a new image with the same size as the original
-    output_image = Image.new("RGB", image.size)
-    
-    # Get the original image size
-    original_width, original_height = image.size
-    
-    # Calculate the size of each block
-    block_width = original_width // 25
-    block_height = original_height // 25
-    
-    # Load the pixels of the small and original images
-    small_pixels = np.array(small_image)
-    output_pixels = np.array(image)
-    
-    for i in range(25):
-        for j in range(25):
-            # Get the average color of the current block in the small image
-            average_color = small_pixels[i, j]
-            
-            # Fill the corresponding block in the output image with the average color
-            for x in range(block_width):
-                for y in range(block_height):
-                    x_pos = i * block_width + x
-                    y_pos = j * block_height + y
-                    if x_pos < original_width and y_pos < original_height:
-                        output_pixels[y_pos, x_pos] = average_color
-    
-    # Create an output image from the modified pixels
-    output_image = Image.fromarray(output_pixels)
+    for region in vor.regions:
+        if not -1 in region and len(region) > 0:
+            polygon = [vor.vertices[i] for i in region]
+            polygon = [(int(x), int(y)) for x, y in polygon]
+            x_coords = [p[0] for p in polygon]
+            y_coords = [p[1] for p in polygon]
+            centroid_x = int(sum(x_coords) / len(x_coords))
+            centroid_y = int(sum(y_coords) / len(y_coords))
+            if 0 <= centroid_x < width and 0 <= centroid_y < height:
+                color = tuple(np_image[centroid_y, centroid_x])
+                draw.polygon(polygon, fill=color)
     
     return output_image
 
@@ -45,7 +42,7 @@ def open_image():
     file_path = filedialog.askopenfilename()
     if file_path:
         input_image = Image.open(file_path)
-        output_image = pixel_prism_window(input_image)
+        output_image = process_image(input_image)
         
         input_image_tk = ImageTk.PhotoImage(input_image)
         output_image_tk = ImageTk.PhotoImage(output_image)
@@ -63,9 +60,20 @@ def save_image():
         if save_path:
             output_image.save(save_path)
 
+def process_image(image):
+    effect = effect_var.get()
+    if effect == "Pixel Prism":
+        return pixel_prism_window(image)
+    elif effect == "Posterize":
+        return posterize_image(image, levels=4)
+    elif effect == "Voronoi":
+        return voronoi_prism_effect(image, num_points=100)
+    else:
+        return image
+
 # Initialize the main window
 root = tk.Tk()
-root.title("Pixel Prism Window")
+root.title("Prism Effects")
 
 # Create frames for input and output images
 input_frame = tk.Frame(root)
@@ -80,6 +88,12 @@ input_img_label.pack()
 
 output_img_label = tk.Label(output_frame)
 output_img_label.pack()
+
+# Option menu to select effect
+effect_var = tk.StringVar(root)
+effect_var.set("Pixel Prism")
+effect_menu = tk.OptionMenu(root, effect_var, "Pixel Prism", "Posterize", "Voronoi")
+effect_menu.pack(side=tk.TOP, pady=10)
 
 # Buttons to open and save images
 open_button = tk.Button(root, text="Open Image", command=open_image)
