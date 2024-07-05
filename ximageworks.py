@@ -30,6 +30,20 @@ def pixel_prism_window(image, block_size=25):
     
     return Image.fromarray(output_pixels)
 
+
+def halftone_effect(image, dot_size=10):
+    width, height = image.size
+    output_image = Image.new("RGB", (width, height))
+    draw = ImageDraw.Draw(output_image)
+    for x in range(0, width, dot_size):
+        for y in range(0, height, dot_size):
+            box = image.crop((x, y, x+dot_size, y+dot_size))
+            average_luminance = int(np.mean(box.convert("L")))
+            radius = (average_luminance / 255) * (dot_size / 2)
+            center = (x + dot_size // 2, y + dot_size // 2)
+            draw.ellipse((center[0] - radius, center[1] - radius, center[0] + radius, center[1] + radius), fill=box.getpixel((dot_size//2, dot_size//2)))
+    return output_image
+
 def posterize_image(image, levels=4):
     levels = max(2, min(256, levels))
     return ImageOps.posterize(image, 8 - levels.bit_length())
@@ -85,6 +99,8 @@ def process_image(image):
     effect = effect_var.get()
     if effect == "Pixel Prism":
         return pixel_prism_window(image, block_size=block_size_slider.get())
+    elif effect == "Halftone":
+        return halftone_effect(image, dot_size=dot_size_slider.get())
     elif effect == "Posterize":
         return posterize_image(image, levels=levels_slider.get())
     elif effect == "Voronoi":
@@ -96,26 +112,21 @@ def process_image(image):
 
 def update_sliders(*args):
     effect = effect_var.get()
-    if effect == "Pixel Prism":
+    block_size_slider.pack_forget()
+    levels_slider.pack_forget()
+    num_points_slider.pack_forget()
+    blur_radius_slider.pack_forget()
+    dot_size_slider.pack_forget()
+    if effect in ["Pixel Prism"]:
         block_size_slider.pack(side=tk.TOP, pady=10)
-        levels_slider.pack_forget()
-        num_points_slider.pack_forget()
-        blur_radius_slider.pack_forget()
     elif effect == "Posterize":
-        block_size_slider.pack_forget()
         levels_slider.pack(side=tk.TOP, pady=10)
-        num_points_slider.pack_forget()
-        blur_radius_slider.pack_forget()
     elif effect == "Voronoi":
-        block_size_slider.pack_forget()
-        levels_slider.pack_forget()
         num_points_slider.pack(side=tk.TOP, pady=10)
-        blur_radius_slider.pack_forget()
     elif effect == "Blur":
-        block_size_slider.pack_forget()
-        levels_slider.pack_forget()
-        num_points_slider.pack_forget()
         blur_radius_slider.pack(side=tk.TOP, pady=10)
+    elif effect == "Halftone":
+        dot_size_slider.pack(side=tk.TOP, pady=10)
     update_output_image()
 
 # Initialize the main window
@@ -139,28 +150,21 @@ output_img_label.pack()
 # Option menu to select effect
 effect_var = tk.StringVar(root)
 effect_var.set("Pixel Prism")
-effect_menu = tk.OptionMenu(root, effect_var, "Pixel Prism", "Posterize", "Voronoi", "Blur", command=update_sliders)
+effect_menu = tk.OptionMenu(root, effect_var, "Pixel Prism", "Halftone", "Posterize", "Voronoi", "Blur", command=update_sliders)
 effect_menu.pack(side=tk.TOP, pady=10)
 
 # Sliders for adjustable parameters
-block_size_slider = Scale(root, from_=5, to=50, orient=tk.HORIZONTAL, label="Block Size (Pixel Prism)", command=update_output_image)
+block_size_slider = Scale(root, from_=5, to=50, orient=tk.HORIZONTAL, label="Block Size", command=update_output_image)
 block_size_slider.set(25)
-block_size_slider.pack(side=tk.TOP, pady=10)
-
 levels_slider = Scale(root, from_=2, to=256, orient=tk.HORIZONTAL, label="Levels (Posterize)", command=update_output_image)
 levels_slider.set(4)
-levels_slider.pack(side=tk.TOP, pady=10)
-levels_slider.pack_forget()
-
 num_points_slider = Scale(root, from_=10, to=500, orient=tk.HORIZONTAL, label="Number of Points (Voronoi)", command=update_output_image)
 num_points_slider.set(100)
-num_points_slider.pack(side=tk.TOP, pady=10)
-num_points_slider.pack_forget()
-
 blur_radius_slider = Scale(root, from_=1, to=10, orient=tk.HORIZONTAL, label="Blur Radius", command=update_output_image)
 blur_radius_slider.set(2)
-blur_radius_slider.pack(side=tk.TOP, pady=10)
-blur_radius_slider.pack_forget()
+
+dot_size_slider = Scale(root, from_=1, to=50, orient=tk.HORIZONTAL, label="Dot Size (Halftone)", command=update_output_image)
+dot_size_slider.set(10)
 
 # Buttons to open and save images
 open_button = tk.Button(root, text="Open Image", command=open_image)
