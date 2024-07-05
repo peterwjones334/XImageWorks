@@ -1,20 +1,20 @@
 import numpy as np
 from PIL import Image, ImageTk, ImageOps, ImageDraw
 import tkinter as tk
-from tkinter import filedialog
+from tkinter import filedialog, Scale
 from scipy.spatial import Voronoi
 
-def pixel_prism_window(image):
-    small_image = image.resize((25, 25), Image.ANTIALIAS)
+def pixel_prism_window(image, block_size=25):
+    small_image = image.resize((block_size, block_size), Image.ANTIALIAS)
     output_image = Image.new("RGB", image.size)
     original_width, original_height = image.size
-    block_width = original_width // 25
-    block_height = original_height // 25
+    block_width = original_width // block_size
+    block_height = original_height // block_size
     small_pixels = np.array(small_image)
     output_pixels = np.array(image)
     
-    for i in range(25):
-        for j in range(25):
+    for i in range(block_size):
+        for j in range(block_size):
             average_color = small_pixels[i, j]
             for x in range(block_width):
                 for y in range(block_height):
@@ -58,16 +58,7 @@ def open_image():
     file_path = filedialog.askopenfilename()
     if file_path:
         input_image = Image.open(file_path)
-        output_image = process_image(input_image)
-        
-        input_image_tk = ImageTk.PhotoImage(input_image)
-        output_image_tk = ImageTk.PhotoImage(output_image)
-        
-        input_img_label.config(image=input_image_tk)
-        input_img_label.image = input_image_tk
-        
-        output_img_label.config(image=output_image_tk)
-        output_img_label.image = output_image_tk
+        update_output_image()
 
 def save_image():
     global output_image
@@ -76,14 +67,22 @@ def save_image():
         if save_path:
             output_image.save(save_path)
 
+def update_output_image(*args):
+    global output_image, input_image
+    if input_image:
+        output_image = process_image(input_image)
+        output_image_tk = ImageTk.PhotoImage(output_image)
+        output_img_label.config(image=output_image_tk)
+        output_img_label.image = output_image_tk
+
 def process_image(image):
     effect = effect_var.get()
     if effect == "Pixel Prism":
-        return pixel_prism_window(image)
+        return pixel_prism_window(image, block_size=block_size_slider.get())
     elif effect == "Posterize":
-        return posterize_image(image, levels=4)
+        return posterize_image(image, levels=levels_slider.get())
     elif effect == "Voronoi":
-        return voronoi_prism_effect(image, num_points=100)
+        return voronoi_prism_effect(image, num_points=num_points_slider.get())
     else:
         return image
 
@@ -108,8 +107,21 @@ output_img_label.pack()
 # Option menu to select effect
 effect_var = tk.StringVar(root)
 effect_var.set("Pixel Prism")
-effect_menu = tk.OptionMenu(root, effect_var, "Pixel Prism", "Posterize", "Voronoi")
+effect_menu = tk.OptionMenu(root, effect_var, "Pixel Prism", "Posterize", "Voronoi", command=update_output_image)
 effect_menu.pack(side=tk.TOP, pady=10)
+
+# Sliders for adjustable parameters
+block_size_slider = Scale(root, from_=5, to=50, orient=tk.HORIZONTAL, label="Block Size (Pixel Prism)", command=update_output_image)
+block_size_slider.set(25)
+block_size_slider.pack(side=tk.TOP, pady=10)
+
+levels_slider = Scale(root, from_=2, to=256, orient=tk.HORIZONTAL, label="Levels (Posterize)", command=update_output_image)
+levels_slider.set(4)
+levels_slider.pack(side=tk.TOP, pady=10)
+
+num_points_slider = Scale(root, from_=10, to=500, orient=tk.HORIZONTAL, label="Number of Points (Voronoi)", command=update_output_image)
+num_points_slider.set(100)
+num_points_slider.pack(side=tk.TOP, pady=10)
 
 # Buttons to open and save images
 open_button = tk.Button(root, text="Open Image", command=open_image)
@@ -124,3 +136,4 @@ output_image = None
 
 # Run the main loop
 root.mainloop()
+
