@@ -11,6 +11,7 @@ It allows users to open an image, apply the desired effect with adjustable param
 - **`posterize_image(image, levels=4)`**: Applies the Posterize effect by reducing the number of color levels in the image.
 - **`voronoi_prism_effect(image, num_points=100)`**: Applies the Voronoi Prism effect by dividing the image into Voronoi cells and filling each cell with the average color.
 - **`blur_image(image, radius=2)`**: Applies a Gaussian blur to the image with the specified radius.
+- **`lima_effect(image, grain_amount=50)`**: Converts the image to greyscale and applies a variable grain effect by adding noise to the image.
 - **`open_image()`**: Opens an image file and updates the displayed image.
 - **`save_image()`**: Saves the processed image to a file, supporting both JPEG and PNG formats.
 - **`update_output_image(*args)`**: Updates the output image based on the selected effect and parameters.
@@ -29,6 +30,8 @@ It allows users to open an image, apply the desired effect with adjustable param
 - **`levels_slider`**: Slider for adjusting the number of levels for the Posterize effect.
 - **`num_points_slider`**: Slider for adjusting the number of points for the Voronoi effect.
 - **`blur_radius_slider`**: Slider for adjusting the blur radius for the Blur effect.
+- **`dot_size_slider`**: For adjusting the dot size for the "Halftone" effect.
+- **`grain_amount_slider`**: For adjusting the grain amount for the "Lima" effect.
 - **`open_button`**: Button
 
 ## Code

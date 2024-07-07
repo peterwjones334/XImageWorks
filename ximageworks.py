@@ -73,6 +73,19 @@ def voronoi_prism_effect(image, num_points=100):
 def blur_image(image, radius=2):
     return image.filter(ImageFilter.GaussianBlur(radius))
 
+def acrylic_overlay_effect(image, blur_radius=10, overlay_color=(255, 255, 255, 128)):
+    blurred_image = image.filter(ImageFilter.GaussianBlur(blur_radius))
+    overlay = Image.new("RGBA", image.size, overlay_color)
+    combined = Image.alpha_composite(blurred_image.convert("RGBA"), overlay)
+    return combined.convert("RGB")
+
+def lima_effect(image, grain_amount=50):
+    grayscale_image = image.convert("L")
+    np_image = np.array(grayscale_image)
+    noise = np.random.normal(0, grain_amount, np_image.shape).astype(np.uint8)
+    noisy_image = np.clip(np_image + noise, 0, 255).astype(np.uint8)
+    return Image.fromarray(noisy_image)
+
 def open_image():
     global input_image, output_image, input_img_label, output_img_label
     file_path = filedialog.askopenfilename()
@@ -107,6 +120,10 @@ def process_image(image):
         return voronoi_prism_effect(image, num_points=num_points_slider.get())
     elif effect == "Blur":
         return blur_image(image, radius=blur_radius_slider.get())
+    elif effect == "Acrylic Overlay":
+        return acrylic_overlay_effect(image, blur_radius=blur_radius_slider.get(), overlay_color=(255, 255, 255, 128))
+    elif effect == "Lima":
+        return lima_effect(image, grain_amount=grain_amount_slider.get())
     else:
         return image
 
@@ -117,16 +134,20 @@ def update_sliders(*args):
     num_points_slider.pack_forget()
     blur_radius_slider.pack_forget()
     dot_size_slider.pack_forget()
+    grain_amount_slider.pack_forget()
+
     if effect in ["Pixel Prism"]:
         block_size_slider.pack(side=tk.TOP, pady=10)
     elif effect == "Posterize":
         levels_slider.pack(side=tk.TOP, pady=10)
     elif effect == "Voronoi":
         num_points_slider.pack(side=tk.TOP, pady=10)
-    elif effect == "Blur":
+    elif effect == "Blur" or effect == "Acrylic Overlay":
         blur_radius_slider.pack(side=tk.TOP, pady=10)
     elif effect == "Halftone":
         dot_size_slider.pack(side=tk.TOP, pady=10)
+    elif effect == "Lima":
+        grain_amount_slider.pack(side=tk.TOP, pady=10)
     update_output_image()
 
 # Initialize the main window
@@ -150,21 +171,27 @@ output_img_label.pack()
 # Option menu to select effect
 effect_var = tk.StringVar(root)
 effect_var.set("Pixel Prism")
-effect_menu = tk.OptionMenu(root, effect_var, "Pixel Prism", "Halftone", "Posterize", "Voronoi", "Blur", command=update_sliders)
+effect_menu = tk.OptionMenu(root, effect_var, "Pixel Prism", "Halftone", "Posterize", "Voronoi", "Blur", "Acrylic Overlay", "Lima", command=update_sliders)
 effect_menu.pack(side=tk.TOP, pady=10)
 
 # Sliders for adjustable parameters
 block_size_slider = Scale(root, from_=5, to=50, orient=tk.HORIZONTAL, label="Block Size", command=update_output_image)
 block_size_slider.set(25)
+
 levels_slider = Scale(root, from_=2, to=256, orient=tk.HORIZONTAL, label="Levels (Posterize)", command=update_output_image)
 levels_slider.set(4)
+
 num_points_slider = Scale(root, from_=10, to=500, orient=tk.HORIZONTAL, label="Number of Points (Voronoi)", command=update_output_image)
 num_points_slider.set(100)
+
 blur_radius_slider = Scale(root, from_=1, to=10, orient=tk.HORIZONTAL, label="Blur Radius", command=update_output_image)
 blur_radius_slider.set(2)
 
 dot_size_slider = Scale(root, from_=1, to=50, orient=tk.HORIZONTAL, label="Dot Size (Halftone)", command=update_output_image)
 dot_size_slider.set(10)
+
+grain_amount_slider = Scale(root, from_=0, to=100, orient=tk.HORIZONTAL, label="Grain Amount (Lima)", command=update_output_image)
+grain_amount_slider.set(50)
 
 # Buttons to open and save images
 open_button = tk.Button(root, text="Open Image", command=open_image)
