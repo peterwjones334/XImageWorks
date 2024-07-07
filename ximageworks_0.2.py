@@ -44,7 +44,7 @@ def open_image():
     if file_path:
         input_image = Image.open(file_path)
         input_frame.update_image(input_image)
-        update_output_image_callback(input_image)
+        update_output_image_callback()
 
 def save_image():
     global output_image
@@ -73,7 +73,7 @@ sliders = slider_handling.create_sliders(root, lambda *args: update_output_image
 
 # Initialize callbacks
 update_output_image_callback = slider_handling.update_output_image(effect_var, sliders, output_frame)
-update_sliders_callback = slider_handling.update_sliders(effect_var, sliders, update_output_image_callback)
+update_sliders_callback = slider_handling.update_sliders(effect_var, sliders, lambda *args: update_output_image_callback(input_image))
 
 effect_menu = tk.OptionMenu(root, effect_var, *image_effects.effects.keys(), command=update_sliders_callback)
 effect_menu.pack(side=tk.TOP, pady=10)

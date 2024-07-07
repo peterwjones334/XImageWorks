@@ -12,12 +12,6 @@ def sepia_filter(image):
             tr = int(0.393 * r + 0.769 * g + 0.189 * b)
             tg = int(0.349 * r + 0.686 * g + 0.168 * b)
             tb = int(0.272 * r + 0.534 * g + 0.131 * b)
-            if tr > 255:
-                tr = 255
-            if tg > 255:
-                tg = 255
-            if tb > 255:
-                tb = 255
             pixels[px, py] = (tr, tg, tb)
     return image
 
@@ -177,6 +171,11 @@ effects = {
 
 def process_image(image, effect, **kwargs):
     if effect in effects:
-        return effects[effect](image, **kwargs)
+        if effect == "Blur":
+            return effects[effect](image, radius=kwargs.get("blur_radius", 2))
+        elif effect == "Acrylic Overlay":
+            return effects[effect](image, blur_radius=kwargs.get("blur_radius", 10), overlay_color=(255, 255, 255, 128))
+        else:
+            return effects[effect](image, **kwargs)
     else:
         return image
