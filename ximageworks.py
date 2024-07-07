@@ -1,5 +1,5 @@
 import numpy as np
-from PIL import Image, ImageTk, ImageOps, ImageDraw, ImageFilter
+from PIL import Image, ImageTk, ImageOps, ImageDraw, ImageFilter, ImageEnhance
 import tkinter as tk
 from tkinter import filedialog, Scale
 from scipy.spatial import Voronoi
@@ -86,6 +86,90 @@ def lima_effect(image, grain_amount=50):
     noisy_image = np.clip(np_image + noise, 0, 255).astype(np.uint8)
     return Image.fromarray(noisy_image)
 
+def movie_film_effect(image):
+    # Apply a warm color tone and increase contrast
+    # Convert the image to RGB if it's not already in that mode
+    image = image.convert("RGB")
+    
+    # Apply a warm filter
+    r, g, b = image.split()
+    r = r.point(lambda i: i * 1.2)
+    g = g.point(lambda i: i * 1.1)
+    b = b.point(lambda i: i * 0.9)
+    image = Image.merge("RGB", (r, g, b))
+    
+    # Increase contrast
+    enhancer = ImageEnhance.Contrast(image)
+    image = enhancer.enhance(1.5)
+    
+    return image
+
+def polaroid_effect(image):
+    # Apply a faded, vintage look with a slight greenish tint
+    # Convert the image to RGB if it's not already in that mode
+    image = image.convert("RGB")
+    
+    # Apply a faded filter
+    r, g, b = image.split()
+    r = r.point(lambda i: i * 1.1)
+    g = g.point(lambda i: i * 1.1)
+    b = b.point(lambda i: i * 1.3)
+    image = Image.merge("RGB", (r, g, b))
+    
+    # Decrease contrast
+    enhancer = ImageEnhance.Contrast(image)
+    image = enhancer.enhance(0.8)
+    
+    # Apply a slight greenish tint
+    green_overlay = Image.new("RGB", image.size, (0, 50, 0, 50))
+    image = Image.blend(image, green_overlay, alpha=0.2)
+    
+    return image
+
+def sepia_filter(image):
+    width, height = image.size
+    pixels = image.load()  # create the pixel map
+
+    for py in range(height):
+        for px in range(width):
+            r, g, b = image.getpixel((px, py))
+
+            tr = int(0.393 * r + 0.769 * g + 0.189 * b)
+            tg = int(0.349 * r + 0.686 * g + 0.168 * b)
+            tb = int(0.272 * r + 0.534 * g + 0.131 * b)
+
+            if tr > 255:
+                tr = 255
+
+            if tg > 255:
+                tg = 255
+
+            if tb > 255:
+                tb = 255
+
+            pixels[px, py] = (tr, tg, tb)
+
+    return image
+
+def cool_filter(image):
+    r, g, b = image.split()
+    r = r.point(lambda i: i * 0.9)
+    b = b.point(lambda i: i * 1.2)
+    return Image.merge("RGB", (r, g, b))
+
+def warm_filter(image):
+    r, g, b = image.split()
+    r = r.point(lambda i: i * 1.2)
+    b = b.point(lambda i: i * 0.9)
+    return Image.merge("RGB", (r, g, b))
+
+def vintage_filter(image):
+    r, g, b = image.split()
+    r = r.point(lambda i: i * 1.1)
+    g = g.point(lambda i: i * 1.1)
+    b = b.point(lambda i: i * 0.9)
+    return Image.merge("RGB", (r, g, b))
+
 def open_image():
     global input_image, output_image, input_img_label, output_img_label
     file_path = filedialog.askopenfilename()
@@ -112,6 +196,8 @@ def process_image(image):
     effect = effect_var.get()
     if effect == "Pixel Prism":
         return pixel_prism_window(image, block_size=block_size_slider.get())
+    elif effect == "Mosaic":
+        return mosaic_effect(image, block_size=block_size_slider.get())
     elif effect == "Halftone":
         return halftone_effect(image, dot_size=dot_size_slider.get())
     elif effect == "Posterize":
@@ -124,6 +210,59 @@ def process_image(image):
         return acrylic_overlay_effect(image, blur_radius=blur_radius_slider.get(), overlay_color=(255, 255, 255, 128))
     elif effect == "Lima":
         return lima_effect(image, grain_amount=grain_amount_slider.get())
+    
+def open_image():
+    global input_image, output_image, input_img_label, output_img_label
+    file_path = filedialog.askopenfilename()
+    if file_path:
+        input_image = Image.open(file_path)
+        update_output_image()
+
+def save_image():
+    global output_image
+    if output_image:
+        save_path = filedialog.asksaveasfilename(defaultextension=".jpg", filetypes=[("JPEG files", "*.jpg"), ("PNG files", "*.png"), ("All files", "*.*")])
+        if save_path:
+            output_image.save(save_path)
+
+def update_output_image(*args):
+    global output_image, input_image
+    if input_image:
+        output_image = process_image(input_image)
+        output_image_tk = ImageTk.PhotoImage(output_image)
+        output_img_label.config(image=output_image_tk)
+        output_img_label.image = output_image_tk
+
+def process_image(image):
+    effect = effect_var.get()
+    if effect == "Pixel Prism":
+        return pixel_prism_window(image, block_size=block_size_slider.get())
+    elif effect == "Mosaic":
+        return mosaic_effect(image, block_size=block_size_slider.get())
+    elif effect == "Halftone":
+        return halftone_effect(image, dot_size=dot_size_slider.get())
+    elif effect == "Posterize":
+        return posterize_image(image, levels=levels_slider.get())
+    elif effect == "Voronoi":
+        return voronoi_prism_effect(image, num_points=num_points_slider.get())
+    elif effect == "Blur":
+        return blur_image(image, radius=blur_radius_slider.get())
+    elif effect == "Acrylic Overlay":
+        return acrylic_overlay_effect(image, blur_radius=blur_radius_slider.get(), overlay_color=(255, 255, 255, 128))
+    elif effect == "Lima":
+        return lima_effect(image, grain_amount=grain_amount_slider.get())
+    elif effect == "Movie Film":
+        return movie_film_effect(image)
+    elif effect == "Polaroid":
+        return polaroid_effect(image)
+    elif effect == "Sepia":
+        return sepia_filter(image)
+    elif effect == "Cool":
+        return cool_filter(image)
+    elif effect == "Warm":
+        return warm_filter(image)
+    elif effect == "Vintage":
+        return vintage_filter(image)
     else:
         return image
 
@@ -135,8 +274,7 @@ def update_sliders(*args):
     blur_radius_slider.pack_forget()
     dot_size_slider.pack_forget()
     grain_amount_slider.pack_forget()
-
-    if effect in ["Pixel Prism"]:
+    if effect in ["Pixel Prism", "Mosaic"]:
         block_size_slider.pack(side=tk.TOP, pady=10)
     elif effect == "Posterize":
         levels_slider.pack(side=tk.TOP, pady=10)
@@ -171,7 +309,7 @@ output_img_label.pack()
 # Option menu to select effect
 effect_var = tk.StringVar(root)
 effect_var.set("Pixel Prism")
-effect_menu = tk.OptionMenu(root, effect_var, "Pixel Prism", "Halftone", "Posterize", "Voronoi", "Blur", "Acrylic Overlay", "Lima", command=update_sliders)
+effect_menu = tk.OptionMenu(root, effect_var, "Pixel Prism", "Halftone", "Posterize", "Voronoi", "Blur", "Acrylic Overlay", "Lima", "Movie Film", "Polaroid", "Sepia", "Cool", "Warm", "Vintage", command=update_sliders)
 effect_menu.pack(side=tk.TOP, pady=10)
 
 # Sliders for adjustable parameters
@@ -206,3 +344,5 @@ output_image = None
 
 # Run the main loop
 root.mainloop()
+
+
