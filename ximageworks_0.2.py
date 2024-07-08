@@ -83,7 +83,7 @@ output_frame.pack(side=tk.RIGHT, padx=10, pady=10)
 
 # Option menu to select effect
 effect_var = tk.StringVar(root)
-effect_var.set("Pixel Prism")
+effect_var.set("Default")
 
 # Initialize callbacks
 def update_output_image(*args):

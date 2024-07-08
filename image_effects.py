@@ -12,27 +12,18 @@ def sepia_filter(image):
             tr = int(0.393 * r + 0.769 * g + 0.189 * b)
             tg = int(0.349 * r + 0.686 * g + 0.168 * b)
             tb = int(0.272 * r + 0.534 * g + 0.131 * b)
+
+            if tr > 255:
+                tr = 255
+
+            if tg > 255:
+                tg = 255
+
+            if tb > 255:
+                tb = 255
             pixels[px, py] = (tr, tg, tb)
+
     return image
-
-def cool_filter(image):
-    r, g, b = image.split()
-    r = r.point(lambda i: i * 0.9)
-    b = b.point(lambda i: i * 1.2)
-    return Image.merge("RGB", (r, g, b))
-
-def warm_filter(image):
-    r, g, b = image.split()
-    r = r.point(lambda i: i * 1.2)
-    b = b.point(lambda i: i * 0.9)
-    return Image.merge("RGB", (r, g, b))
-
-def vintage_filter(image):
-    r, g, b = image.split()
-    r = r.point(lambda i: i * 1.1)
-    g = g.point(lambda i: i * 1.1)
-    b = b.point(lambda i: i * 0.9)
-    return Image.merge("RGB", (r, g, b))
 
 def pixel_prism_window(image, block_size=25):
     small_image = image.resize((block_size, block_size), Image.LANCZOS)
@@ -87,10 +78,6 @@ def halftone_effect(image, dot_size=10):
             draw.ellipse((center[0] - radius, center[1] - radius, center[0] + radius, center[1] + radius), fill=box.getpixel((dot_size//2, dot_size//2)))
     return output_image
 
-def posterize_image(image, levels=4):
-    levels = max(2, min(256, levels))
-    return ImageOps.posterize(image, 8 - levels.bit_length())
-
 def voronoi_prism_effect(image, num_points=100):
     width, height = image.size
     np_image = np.array(image)
@@ -111,21 +98,11 @@ def voronoi_prism_effect(image, num_points=100):
                 draw.polygon(polygon, fill=color)
     return output_image
 
-def blur_image(image, radius=2):
-    return image.filter(ImageFilter.GaussianBlur(radius))
-
 def acrylic_overlay_effect(image, blur_radius=10, overlay_color=(255, 255, 255, 128)):
     blurred_image = image.filter(ImageFilter.GaussianBlur(blur_radius))
     overlay = Image.new("RGBA", image.size, overlay_color)
     combined = Image.alpha_composite(blurred_image.convert("RGBA"), overlay)
     return combined.convert("RGB")
-
-def lima_effect(image, grain_amount=50):
-    grayscale_image = image.convert("L")
-    np_image = np.array(grayscale_image)
-    noise = np.random.normal(0, grain_amount, np_image.shape).astype(np.uint8)
-    noisy_image = np.clip(np_image + noise, 0, 255).astype(np.uint8)
-    return Image.fromarray(noisy_image)
 
 def movie_film_effect(image):
     image = image.convert("RGB")
@@ -151,22 +128,91 @@ def polaroid_effect(image):
     image = Image.blend(image, green_overlay, alpha=0.2)
     return image
 
+# Grey scale + grain
+def lima_effect(image, grain_amount=50):
+    grayscale_image = image.convert("L")
+    np_image = np.array(grayscale_image)
+    noise = np.random.normal(0, grain_amount, np_image.shape).astype(np.uint8)
+    noisy_image = np.clip(np_image + noise, 0, 255).astype(np.uint8)
+    return Image.fromarray(noisy_image)
+
+def raw_image(image):
+    return image
+
+def grayscale_filter(image):
+    return image.convert("L")
+
+def posterize_image(image, levels=4):
+    levels = max(2, min(256, levels))
+    return ImageOps.posterize(image, 8 - levels.bit_length())
+
+def blur_image(image, radius=2):
+    return image.filter(ImageFilter.GaussianBlur(radius))
+ 
+def invert_filter(image):
+    return ImageOps.invert(image)
+
+def brightness_filter(image, factor=1.5):
+    enhancer = ImageEnhance.Brightness(image)
+    return enhancer.enhance(factor)
+
+def contrast_filter(image, factor=1.5):
+    enhancer = ImageEnhance.Contrast(image)
+    return enhancer.enhance(factor)
+
+def sharpen_filter(image):
+    enhancer = ImageEnhance.Sharpness(image)
+    return enhancer.enhance(2.0)
+
+def edge_filter(image):
+    return image.filter(ImageFilter.FIND_EDGES)
+
+def emboss_filter(image):
+    return image.filter(ImageFilter.EMBOSS)
+
+def cool_filter(image):
+    r, g, b = image.split()
+    r = r.point(lambda i: i * 0.9)
+    b = b.point(lambda i: i * 1.2)
+    return Image.merge("RGB", (r, g, b))
+
+def warm_filter(image):
+    r, g, b = image.split()
+    r = r.point(lambda i: i * 1.2)
+    b = b.point(lambda i: i * 0.9)
+    return Image.merge("RGB", (r, g, b))
+
+def vintage_filter(image):
+    r, g, b = image.split()
+    r = r.point(lambda i: i * 1.1)
+    g = g.point(lambda i: i * 1.1)
+    b = b.point(lambda i: i * 0.9)
+    return Image.merge("RGB", (r, g, b))
+
 # List of available effects
 effects = {
-    "Pixel Prism": pixel_prism_window,
+    "Default": raw_image,
     "Mosaic": mosaic_effect,
     "Halftone": halftone_effect,
     "Posterize": posterize_image,
     "Voronoi": voronoi_prism_effect,
-    "Blur": blur_image,
     "Acrylic Overlay": acrylic_overlay_effect,
+    "Blur": blur_image,
     "Lima": lima_effect,
+    "Grayscale": grayscale_filter,
     "Movie Film": movie_film_effect,
     "Polaroid": polaroid_effect,
     "Sepia": sepia_filter,
+    "Vintage": vintage_filter,
     "Cool": cool_filter,
     "Warm": warm_filter,
-    "Vintage": vintage_filter,
+    "Invert": invert_filter,
+    "Brightness": brightness_filter,
+    "Contrast": contrast_filter,
+    "Sharpen": sharpen_filter,
+    "Edge": edge_filter,
+    "Emboss": emboss_filter,
+    "Pixel Prism": pixel_prism_window,
 }
 
 def process_image(image, effect, **kwargs):

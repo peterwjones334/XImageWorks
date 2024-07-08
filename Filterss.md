@@ -2,10 +2,10 @@
 
 ## Color Filters
 
-Common color filters used in image processing and photography to achieve various visual effects include:
+Common color filters used in image processing and photography to achieve visual effects include:
 
 - Sepia: Gives images a warm, brownish tone, mimicking old photographs.
-- Black and White (Grayscale): Converts images to shades of gray, removing all color.
+- Black and White (Gray scale): Converts images to shades of gray, removing all color.
 - Vintage/Retro: Applies a faded look with warm or cool tints to mimic older photos.
 - Cool Filter: Adds a blue tint to images, creating a cooler look.
 - Warm Filter: Adds a red or yellow tint to images, creating a warmer look.
@@ -14,10 +14,10 @@ Common color filters used in image processing and photography to achieve various
 - Blue Filter: Enhances blue tones, useful for skies and water.
 - High Contrast: Increases the difference between light and dark areas, making images appear more dynamic.
 - Low Contrast: Decreases the difference between light and dark areas, creating a softer look.
-- Brightness: Adjusts the overall lightness or darkness of the image.
+- Brightness: Adjusts the lightness or darkness of the image.
 - Saturation: Adjusts the intensity of colors in the image.
 - Lomo: Mimics the look of Lomo cameras with high contrast, vignette, and saturated colors.
-- Negative: Inverts the colors of the image, similar to photo negatives.
+- Negative: Inverts the colors of the image to make it look like a photograph negatives.
 - HDR (High Dynamic Range): Enhances the range of light and dark areas, creating a more detailed image.
 - Duotone: Uses two colors to create a unique effect, often used in graphic design.
 - Color Pop: Keeps one color while converting the rest of the image to black and white.
@@ -27,7 +27,7 @@ Common color filters used in image processing and photography to achieve various
 
 ## Code
 
-Let's implement a few of these common filters in our application:
+This code covers some of these common filters for our application:
 
 - Sepia
 - Cool Filter
