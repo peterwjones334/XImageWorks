@@ -189,7 +189,45 @@ def vintage_filter(image):
     b = b.point(lambda i: i * 0.9)
     return Image.merge("RGB", (r, g, b))
 
+def outline_drawing(image):
+    # Apply edge detection filter
+    edges_image = image.filter(ImageFilter.FIND_EDGES)
+    # Invert the colors of the edge-detected image
+    inverted_image = ImageOps.invert(edges_image)
+    grayscale_image = inverted_image.convert("L")
+    return grayscale_image
+
+def adjust_rgb(image, r_factor=1.1, g_factor=1.1, b_factor=0.9):
+    r, g, b = image.split()
+    r = r.point(lambda i: i * r_factor)
+    g = g.point(lambda i: i * g_factor)
+    b = b.point(lambda i: i * b_factor)
+    return Image.merge("RGB", (r, g, b))
+
+def add_grain(image, amount=0.1):
+    arr = np.array(image)
+    noise = np.random.normal(0, amount * 255, arr.shape)
+    noisy_image = arr + noise
+    noisy_image = np.clip(noisy_image, 0, 255)
+    return Image.fromarray(noisy_image.astype(np.uint8))
+
+#def combined_filter1(image, r_factor=1.1, g_factor=1.1, b_factor=0.9, grain_amount=0.1, blur_radius=2):
+    # Adjust RGB
+    #image = adjust_rgb(image, r_factor, g_factor, b_factor)
+    # Add grain
+    # image = add_grain(image, grain_amount)
+    # Apply blur
+    #image = image.filter(ImageFilter.GaussianBlur(blur_radius))
+    #return image
+
+#def Custom_filter1(image):
+ #   image = Image.open(image)
+ #   filtered_image = combined_filter1(image)
+ #   filtered_image.show()
+
+
 # List of available effects
+
 effects = {
     "Default": raw_image,
     "Mosaic": mosaic_effect,
@@ -213,9 +251,12 @@ effects = {
     "Edge": edge_filter,
     "Emboss": emboss_filter,
     "Pixel Prism": pixel_prism_window,
-}
+    # "Grain Blur": Custom_filter1,
+    "Line Drawing": outline_drawing,
+}    
 
 def process_image(image, effect, **kwargs):
+
     if effect in effects:
         if effect == "Blur":
             return effects[effect](image, radius=kwargs.get("blur_radius", 2))
@@ -225,3 +266,6 @@ def process_image(image, effect, **kwargs):
             return effects[effect](image, **kwargs)
     else:
         return image
+#        return effects[effect](image, **kwargs)
+#    else:
+#        raise ValueError(f"Effect '{effect}' not recognized.")
