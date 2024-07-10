@@ -169,20 +169,83 @@ def outline_drawing(image):
     return grayscale_image
 
 def sketch_effect(image):
-    # ... (same as before)
-    pass
+    """
+    Apply a sketch effect to the image.
+    
+    :param image: The original image.
+    :return: The image with a sketch effect.
+    """
+    # Convert the image to grayscale
+    gray_image = image.convert("L")
+    
+    # Invert the grayscale image
+    inverted_image = ImageOps.invert(gray_image)
+    
+    # Apply a blur to the inverted image
+    blurred_image = inverted_image.filter(ImageFilter.GaussianBlur(radius=10))
+    
+    # Blend the grayscale image with the blurred inverted image
+    sketch_image = Image.blend(gray_image, blurred_image, alpha=0.5)
+    
+    return sketch_image
 
 def oil_painting_effect(image):
-    # ... (same as before)
-    pass
+    """
+    Apply an oil painting effect to the image.
+    
+    :param image: The original image.
+    :return: The image with an oil painting effect.
+    """
+    # Apply a median filter to smooth the image
+    smoothed_image = image.filter(ImageFilter.MedianFilter(size=3))
+    
+    # Enhance the color
+    enhancer = ImageEnhance.Color(smoothed_image)
+    enhanced_image = enhancer.enhance(2.0)
+    
+    return enhanced_image
 
 def watercolor_effect(image):
-    # ... (same as before)
-    pass
+    """
+    Apply a watercolor effect to the image.
+    
+    :param image: The original image.
+    :return: The image with a watercolor effect.
+    """
+    # Apply a Gaussian blur to smooth the image
+    blurred_image = image.filter(ImageFilter.GaussianBlur(radius=2))
+    
+    # Apply an edge enhancement filter
+    enhanced_image = blurred_image.filter(ImageFilter.EDGE_ENHANCE_MORE)
+    
+    return enhanced_image
 
 def cartoon_effect(image):
-    # ... (same as before)
-    pass
+    """
+    Apply a cartoon effect to the image.
+    
+    :param image: The original image.
+    :return: The image with a cartoon effect.
+    """
+    # Convert the image to grayscale
+    gray_image = image.convert("L")
+    
+    # Apply edge detection
+    edges = gray_image.filter(ImageFilter.FIND_EDGES)
+    
+    # Invert the edges
+    inverted_edges = ImageOps.invert(edges)
+    
+    # Blur the edges to make them look smoother
+    blurred_edges = inverted_edges.filter(ImageFilter.GaussianBlur(radius=1))
+    
+    # Enhance the edges by blending with the original image
+    cartoon_image = Image.blend(image, blurred_edges.convert("RGB"), alpha=0.3)
+    
+    # Apply a posterize effect to reduce the number of colors
+    cartoon_image = ImageOps.posterize(cartoon_image, bits=3)
+    
+    return cartoon_image
 
 # Export effects
 artistic_effects = {

@@ -1,6 +1,9 @@
 from PIL import Image, ImageFilter, ImageDraw
 import numpy as np
 from scipy.spatial import Voronoi
+import cv2
+from skimage import io, filters, color, exposure
+import matplotlib.pyplot as plt
 
 def adjust_rgb(image, r_factor, g_factor, b_factor):
     # Implementation for adjusting RGB values
@@ -107,6 +110,51 @@ def pixel_prism_window(image, block_size=25):
                     output_pixels[y, x] = average_color
     return Image.fromarray(output_pixels)
 
+def cartoon_effect_opencv(image_path):
+    """
+    Apply a cartoon effect to an image using OpenCV.
+
+    :param image_path: Path to the input image.
+    :return: The image with a cartoon effect.
+    """
+    # Read the image
+    img = cv2.imread(image_path)
+    
+    # Convert to grayscale
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    
+    # Apply median blur
+    gray = cv2.medianBlur(gray, 5)
+    
+    # Detect edges using adaptive thresholding
+    edges = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_MEAN_C, 
+                                  cv2.THRESH_BINARY, 9, 9)
+    
+    # Apply bilateral filter to reduce color palette
+    color = cv2.bilateralFilter(img, 9, 300, 300)
+    
+    # Combine edges and color image
+    cartoon = cv2.bitwise_and(color, color, mask=edges)
+    
+    return cartoon
+
+def oil_painting_effect_skimage(image_path):
+    """
+    Apply an oil painting effect to an image using scikit-image.
+
+    :param image_path: Path to the input image.
+    :return: The image with an oil painting effect.
+    """
+    image = io.imread(image_path)
+    
+    # Convert to grayscale
+    gray_image = color.rgb2gray(image)
+    
+    # Apply median filter to simulate oil painting
+    oil_painting_image = filters.rank.median(gray_image, np.ones((5, 5)))
+    
+    return oil_painting_image
+
 # Export effects
 custom_effects = {
     "Grain Blur": Custom_filter1,
@@ -115,4 +163,6 @@ custom_effects = {
     "Halftone": halftone_effect,  
     "Voronoi": voronoi_prism_effect,
     "Pixel Prism": pixel_prism_window, 
+    "Ocv_Cartoon", cartoon_effect_opencv,
+    "Ski_Oil", oil_painting_effect_skimage,
 }
