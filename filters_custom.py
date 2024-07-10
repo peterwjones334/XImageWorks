@@ -163,6 +163,6 @@ custom_effects = {
     "Halftone": halftone_effect,  
     "Voronoi": voronoi_prism_effect,
     "Pixel Prism": pixel_prism_window, 
-    "Ocv_Cartoon", cartoon_effect_opencv,
-    "Ski_Oil", oil_painting_effect_skimage,
+    #"Ocv_Cartoon": cartoon_effect_opencv,
+    #"Ski_Oil": oil_painting_effect_skimage,
 }
