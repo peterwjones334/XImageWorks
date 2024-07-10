@@ -2,7 +2,7 @@ from PIL import Image, ImageFilter, ImageDraw
 import numpy as np
 from scipy.spatial import Voronoi
 import cv2
-from skimage import io, filters, color, exposure
+from skimage import io, filters, color, exposure, util
 import matplotlib.pyplot as plt
 
 def adjust_rgb(image, r_factor, g_factor, b_factor):
@@ -110,15 +110,18 @@ def pixel_prism_window(image, block_size=25):
                     output_pixels[y, x] = average_color
     return Image.fromarray(output_pixels)
 
-def cartoon_effect_opencv(image_path):
+def cartoon_effect_opencv(image):
     """
-    Apply a cartoon effect to an image using OpenCV.
+    Apply a cartoon effect to a PIL image using OpenCV.
 
-    :param image_path: Path to the input image.
+    :param image: PIL Image object.
     :return: The image with a cartoon effect.
     """
-    # Read the image
-    img = cv2.imread(image_path)
+    # Convert PIL image to numpy array
+    img = np.array(image)
+
+    # Convert RGB to BGR (OpenCV uses BGR by default)
+    img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
     
     # Convert to grayscale
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -136,22 +139,38 @@ def cartoon_effect_opencv(image_path):
     # Combine edges and color image
     cartoon = cv2.bitwise_and(color, color, mask=edges)
     
-    return cartoon
+    # Convert BGR to RGB
+    cartoon = cv2.cvtColor(cartoon, cv2.COLOR_BGR2RGB)
+    
+    # Convert numpy array back to PIL image
+    cartoon_image = Image.fromarray(cartoon)
+    
+    return cartoon_image
 
-def oil_painting_effect_skimage(image_path):
+def oil_gray_effect_skimage(image):
     """
-    Apply an oil painting effect to an image using scikit-image.
+    Apply an oil painting effect to a PIL image using scikit-image.
 
-    :param image_path: Path to the input image.
+    :param image: PIL Image object.
     :return: The image with an oil painting effect.
     """
-    image = io.imread(image_path)
+    # Convert PIL image to numpy array
+    image = np.array(image)
     
-    # Convert to grayscale
-    gray_image = color.rgb2gray(image)
+    # If the image is RGB, convert it to grayscale
+    if len(image.shape) == 3 and image.shape[2] == 3:
+        gray_image = color.rgb2gray(image)
+    else:
+        gray_image = image
+    
+    # Convert the grayscale image to uint8 to avoid precision loss warning
+    gray_image = util.img_as_ubyte(gray_image)
     
     # Apply median filter to simulate oil painting
     oil_painting_image = filters.rank.median(gray_image, np.ones((5, 5)))
+    
+    # Convert numpy array back to PIL image
+    oil_painting_image = Image.fromarray(oil_painting_image)
     
     return oil_painting_image
 
@@ -163,6 +182,6 @@ custom_effects = {
     "Halftone": halftone_effect,  
     "Voronoi": voronoi_prism_effect,
     "Pixel Prism": pixel_prism_window, 
-    #"Ocv_Cartoon": cartoon_effect_opencv,
-    #"Ski_Oil": oil_painting_effect_skimage,
+    "Ocv_Cartoon": cartoon_effect_opencv,
+    "Ski_OilGrey": oil_gray_effect_skimage,
 }
