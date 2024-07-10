@@ -31,7 +31,7 @@ pip install pillow scipy
 
 ```bash
 git clone https://github.com/yourusername/XImageWorks.git
-cd image-effects-app
+cd XImageWorks
 ```
 
 ## Usage
@@ -39,7 +39,7 @@ cd image-effects-app
 Run the Application:
 
 ```bash
-python image_effects_app.py
+python ximageworks_0.2.py
 ```
 
 Open an Image:
