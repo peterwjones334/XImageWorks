@@ -33,24 +33,15 @@ def upload_file():
                 
                 # Save original filename in session
                 session['filename'] = filename
-                
-                return render_template('upload.html', filename=filename, effects=effects_aggregator.effects.keys())
 
-        if 'filename' in session:
-            filename = session['filename']
-            if 'effect' in request.form:
+                # Apply effect if selected
                 selected_effect = request.form.get('effect')
-                input_image_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-                
-                # Process the image
-                image = Image.open(input_image_path)
-                
                 if selected_effect in effects_aggregator.effects:
+                    image = Image.open(input_image_path)
                     image = effects_aggregator.effects[selected_effect](image)
-                
-                output_image_path = os.path.join(app.config['PROCESSED_FOLDER'], filename)
-                image.save(output_image_path)
-                return render_template('upload.html', filename=filename, effects=effects_aggregator.effects.keys(), processed=True)
+                    output_image_path = os.path.join(app.config['PROCESSED_FOLDER'], filename)
+                    image.save(output_image_path)
+                    return render_template('upload.html', filename=filename, effects=effects_aggregator.effects.keys(), processed=True)
 
     return render_template('upload.html', effects=effects_aggregator.effects.keys())
 

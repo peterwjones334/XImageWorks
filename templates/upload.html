@@ -36,20 +36,23 @@
         .form-group input[type="file"],
         .form-group select,
         .form-group input[type="text"],
-        .form-group input[type="submit"] {
+        .form-group input[type="submit"],
+        .form-group button {
             width: 100%;
             padding: 10px;
             border: 1px solid #ddd;
             border-radius: 4px;
         }
-        .form-group input[type="submit"] {
+        .form-group input[type="submit"],
+        .form-group button {
             background: #28a745;
             color: #fff;
             border: none;
             cursor: pointer;
             transition: background 0.3s;
         }
-        .form-group input[type="submit"]:hover {
+        .form-group input[type="submit"]:hover,
+        .form-group button:hover {
             background: #218838;
         }
         .button-container {
@@ -59,6 +62,7 @@
         .container {
             position: relative;
             width: 100%;
+            max-width: 600px;
             margin-top: 20px;
         }
         .image {
@@ -93,13 +97,6 @@
                 <input type="file" name="file" id="file">
             </div>
             <div class="form-group">
-                <input type="submit" value="Upload">
-            </div>
-        </form>
-
-        {% if filename %}
-        <form method="post">
-            <div class="form-group">
                 <label for="effects">Select Effect:</label>
                 <select name="effect" id="effects">
                     {% for effect in effects %}
@@ -108,19 +105,17 @@
                 </select>
             </div>
             <div class="form-group">
-                <input type="submit" value="Apply Effect">
+                <input type="submit" value="Upload and Apply Effect">
             </div>
         </form>
-        <form method="post" action="{{ url_for('save_as') }}">
-            <div class="form-group">
-                <label for="save_path">Save As:</label>
+
+        {% if filename %}
+        <div class="button-container">
+            <form id="save-as-form" method="post" action="{{ url_for('save_as') }}">
                 <input type="hidden" name="filename" value="{{ filename }}">
-                <input type="text" name="save_path" placeholder="Enter save path" id="save_path">
-            </div>
-            <div class="form-group">
                 <input type="submit" value="Save As">
-            </div>
-        </form>
+            </form>
+        </div>
         {% endif %}
     </div>
 
@@ -185,6 +180,15 @@
             }
         }
         initComparisons();
+
+        document.getElementById('save-as-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            var filename = "{{ filename }}";
+            var link = document.createElement('a');
+            link.href = "{{ url_for('processed_file', filename=filename) }}";
+            link.download = filename;
+            link.click();
+        });
     </script>
 </body>
 </html>
