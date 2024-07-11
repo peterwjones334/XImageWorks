@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Compare Images</title>
+    <style>
+        .container {
+            position: relative;
+            width: 50%;
+            margin: auto;
+        }
+        .image {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        .img-comp-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            overflow: hidden;
+            height: 100%;
+        }
+        .slider {
+            position: absolute;
+            z-index: 2;
+            cursor: ew-resize;
+            width: 5px;
+            height: 100%;
+            background-color: #ddd;
+        }
+        .button-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Compare Images</h1>
+    <div class="container" id="image-compare">
+        <img src="{{ url_for('uploaded_file', filename=filename) }}" class="image" id="before-image">
+        <div class="img-comp-overlay" id="overlay">
+            <img src="{{ url_for('processed_file', filename=filename) }}" class="image" id="after-image">
+        </div>
+        <div class="slider" id="slider"></div>
+    </div>
+    <div class="button-container">
+        <a href="{{ url_for('upload_file') }}" class="button">Back</a>
+        <a href="{{ url_for('processed_file', filename=filename) }}" class="button" download>Save</a>
+    </div>
+    <script>
+        function initComparisons() {
+            var x, i;
+            x = document.getElementsByClassName("img-comp-overlay");
+            for (i = 0; i < x.length; i++) {
+                compareImages(x[i]);
+            }
+            function compareImages(img) {
+                var slider, img, clicked = 0, w, h;
+                w = img.offsetWidth;
+                h = img.offsetHeight;
+                img.style.width = (w / 2) + "px";
+                slider = document.getElementById("slider");
+                slider.style.top = (h / 2) - (slider.offsetHeight / 2) + "px";
+                slider.style.left = (w / 2) - (slider.offsetWidth / 2) + "px";
+                slider.addEventListener("mousedown", slideReady);
+                window.addEventListener("mouseup", slideFinish);
+                slider.addEventListener("touchstart", slideReady);
+                window.addEventListener("touchend", slideFinish);
+                function slideReady(e) {
+                    e.preventDefault();
+                    clicked = 1;
+                    window.addEventListener("mousemove", slideMove);
+                    window.addEventListener("touchmove", slideMove);
+                }
+                function slideFinish() {
+                    clicked = 0;
+                }
+                function slideMove(e) {
+                    var pos;
+                    if (clicked == 0) return false;
+                    pos = getCursorPos(e)
+                    if (pos < 0) pos = 0;
+                    if (pos > w) pos = w;
+                    slide(pos);
+                }
+                function getCursorPos(e) {
+                    var a, x = 0;
+                    e = (e.changedTouches) ? e.changedTouches[0] : e;
+                    a = img.getBoundingClientRect();
+                    x = e.pageX - a.left;
+                    x = x - window.pageXOffset;
+                    return x;
+                }
+                function slide(x) {
+                    img.style.width = x + "px";
+                    slider.style.left = img.offsetWidth - (slider.offsetWidth / 2) + "px";
+                }
+            }
+        }
+        initComparisons();
+    </script>
+</body>
+</html>
+
+

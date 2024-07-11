@@ -8,15 +8,14 @@
     <h1>Upload and Process Image</h1>
     <form method="post" enctype="multipart/form-data">
         <input type="file" name="file"><br>
-        <label for="effects">Select Effects:</label><br>
-        {% for effect in effects %}
-            <input type="checkbox" name="effects" value="{{ effect }}"> {{ effect }}<br>
-        {% endfor %}
-        <label for="border_size">Border Size:</label>
-        <input type="number" name="border_size" value="50"><br>
-        <label for="bottom_border_factor">Bottom Border Factor:</label>
-        <input type="number" step="0.1" name="bottom_border_factor" value="1.5"><br>
+        <label for="effects">Select Effect:</label><br>
+        <select name="effect" id="effects">
+            {% for effect in effects %}
+                <option value="{{ effect }}">{{ effect }}</option>
+            {% endfor %}
+        </select><br><br>
         <input type="submit" value="Upload">
     </form>
 </body>
 </html>
+
