@@ -99,7 +99,7 @@ def process_images_in_folder(input_folder, output_folder, effects, target_size=(
         print(f"Processed and saved: {output_image_path}")
 
 if __name__ == "__main__":
-    input_folder = 'C:\\input'
-    output_folder = 'C:\\output'
-    effects = ['Polaroid', 'Color Grain']  # List of effects to apply
+    input_folder = 'D:\\input'
+    output_folder = 'D:\\output'
+    effects = ['Polaroid']  # List of effects to apply
     process_images_in_folder(input_folder, output_folder, effects, target_size=(800, 800), border_size=50, border_color=(255, 255, 255), bottom_border_factor=1.5)
