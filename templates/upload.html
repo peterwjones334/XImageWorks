@@ -117,11 +117,9 @@
             </div>
         </form>
         <div class="button-container">
-            <form id="save-as-form" method="post" action="{{ url_for('save_as') }}">
+            <form id="save-form" method="post" action="{{ url_for('save') }}">
                 <input type="hidden" name="filename" value="{{ filename }}">
-                <label for="save_path">Save As:</label>
-                <input type="text" name="save_path" placeholder="Enter save path" id="save_path">
-                <input type="submit" value="Save As">
+                <input type="submit" value="Save">
             </form>
         </div>
         {% endif %}
@@ -188,18 +186,10 @@
             }
         }
         initComparisons();
-
-        document.getElementById('save-as-form').addEventListener('submit', function(event) {
-            event.preventDefault();
-            var filename = "{{ filename }}";
-            var link = document.createElement('a');
-            link.href = "{{ url_for('processed_file', filename=filename) }}";
-            link.download = filename;
-            link.click();
-        });
     </script>
 </body>
 </html>
+
 
 
 

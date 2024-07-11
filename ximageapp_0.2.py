@@ -54,15 +54,17 @@ def upload_file():
 
     return render_template('upload.html', effects=effects_aggregator.effects.keys())
 
-@app.route('/save_as', methods=['POST'])
-def save_as():
-    if request.method == 'POST':
-        filename = request.form['filename']
-        save_path = request.form['save_path']
-        input_image_path = os.path.join(app.config['PROCESSED_FOLDER'], filename)
-        output_image_path = os.path.join(save_path, filename)
-        os.rename(input_image_path, output_image_path)
+@app.route('/save', methods=['POST'])
+def save():
+    if 'filename' in session:
+        filename = session['filename']
+        processed_image_path = os.path.join(app.config['PROCESSED_FOLDER'], filename)
+        save_path = os.path.join('saved_images', filename)
+        if not os.path.exists('saved_images'):
+            os.makedirs('saved_images')
+        os.rename(processed_image_path, save_path)
         return redirect(url_for('upload_file'))
+    return redirect(url_for('upload_file'))
 
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
@@ -74,4 +76,5 @@ def processed_file(filename):
 
 if __name__ == '__main__':
     app.run(debug=True)
+
 
