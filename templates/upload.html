@@ -97,6 +97,14 @@
                 <input type="file" name="file" id="file">
             </div>
             <div class="form-group">
+                <input type="submit" value="Upload">
+            </div>
+        </form>
+
+        {% if filename %}
+        <form method="post">
+            <div class="form-group">
+                <input type="hidden" name="filename" value="{{ filename }}">
                 <label for="effects">Select Effect:</label>
                 <select name="effect" id="effects">
                     {% for effect in effects %}
@@ -105,14 +113,14 @@
                 </select>
             </div>
             <div class="form-group">
-                <input type="submit" value="Upload and Apply Effect">
+                <input type="submit" value="Apply Effect">
             </div>
         </form>
-
-        {% if filename %}
         <div class="button-container">
             <form id="save-as-form" method="post" action="{{ url_for('save_as') }}">
                 <input type="hidden" name="filename" value="{{ filename }}">
+                <label for="save_path">Save As:</label>
+                <input type="text" name="save_path" placeholder="Enter save path" id="save_path">
                 <input type="submit" value="Save As">
             </form>
         </div>
@@ -192,6 +200,7 @@
     </script>
 </body>
 </html>
+
 
 
 
