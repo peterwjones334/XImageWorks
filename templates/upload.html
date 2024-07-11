@@ -34,7 +34,7 @@
             </div>
         </form>
         <div class="button-container">
-            <form id="save-form" method="post" action="{{ url_for('save') }}">
+            <form id="save-form" method="post" action="{{ url_for('main.save') }}">
                 <input type="hidden" name="filename" value="{{ filename }}">
                 <input type="submit" value="Save">
             </form>
@@ -44,9 +44,9 @@
 
     {% if filename and processed %}
     <div class="container" id="image-compare">
-        <img src="{{ url_for('uploaded_file', filename=filename) }}" class="image" id="before-image">
+        <img src="{{ url_for('main.uploaded_file', filename=filename) }}" class="image" id="before-image">
         <div class="img-comp-overlay" id="overlay">
-            <img src="{{ url_for('processed_file', filename=filename) }}" class="image" id="after-image">
+            <img src="{{ url_for('main.processed_file', filename=filename) }}" class="image" id="after-image">
         </div>
         <div class="slider" id="slider"></div>
     </div>
@@ -55,6 +55,7 @@
     <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
 </body>
 </html>
+
 
 
 
