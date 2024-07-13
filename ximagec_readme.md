@@ -15,7 +15,7 @@ Before you begin, ensure you have the following installed on your system:
 Ensure your project structure looks like this:
 
 ```
-my-flask-app/
+app/
 ├── Dockerfile
 ├── docker-compose.yml
 ├── requirements.txt
@@ -73,21 +73,16 @@ CMD ["flask", "run", "--host=0.0.0.0"]
 Create a `docker-compose.yml` file in the root directory of your project. This file allows you to define and manage multi-container Docker applications.
 
 ```yaml
-version: '3.8'
+version: '3.4'
 
 services:
-  web:
-    build: .
+  ximageworks:
+    image: ximageworks
+    build:
+      context: .
+      dockerfile: ./Dockerfile
     ports:
-      - "5000:5000"
-    volumes:
-      - .:/app
-    environment:
-      FLASK_ENV: development
-    depends_on:
-      - redis
-  redis:
-    image: "redis:alpine"
+      - 5000:5000
 ```
 
 ### requirements.txt
@@ -95,12 +90,17 @@ services:
 Ensure your `requirements.txt` contains all the necessary dependencies for your Flask application.
 
 ```txt
-Flask==2.1.1
-Pillow==9.0.1
-numpy==1.22.3
-scipy==1.8.0
-redis==4.2.2
-opencv-python-headless==4.5.3.56
+Flask==3.0.0
+Flask-SQLAlchemy==3.1.1
+Flask-Uploads==0.2.1
+Flask-WTF==1.2.1
+Werkzeug==3.0.1
+Pillow==10.0.1
+numpy==1.26.2
+scipy==1.11.4
+opencv-python-headless==4.9.0.80
+scikit-image==0.23.2
+matplotlib==3.8.2
 ```
 
 ### Flask Application Entry Point
