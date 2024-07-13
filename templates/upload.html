@@ -4,14 +4,15 @@
     <meta charset="UTF-8">
     <title>Upload and Process Image</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
 </head>
 <body>
     <div class="form-container">
         <h1>Upload and Process Image</h1>
-        <form method="post" enctype="multipart/form-data">
+        <form id="upload-form" method="post" enctype="multipart/form-data">
             <div class="form-group">
                 <label for="file">Choose File:</label>
-                <input type="file" name="file" id="file">
+                <input type="file" name="file" id="file" accept="image/*">
             </div>
             <div class="form-group">
                 <input type="submit" value="Upload">
@@ -19,7 +20,10 @@
         </form>
 
         {% if filename %}
-        <form method="post">
+        <div id="image-container">
+            <img id="uploaded-image" class="preview-image" src="{{ url_for('main.uploaded_file', filename=filename) }}">
+        </div>
+        <form id="effect-form" method="post">
             <div class="form-group">
                 <input type="hidden" name="filename" value="{{ filename }}">
                 <label for="effects">Select Effect:</label>
@@ -44,21 +48,16 @@
 
     {% if filename and processed %}
     <div class="container" id="image-compare">
-        <img src="{{ url_for('main.uploaded_file', filename=filename) }}" class="image" id="before-image">
+        <img src="{{ url_for('main.uploaded_file', filename=filename) }}" class="image preview-image" id="before-image">
         <div class="img-comp-overlay" id="overlay">
-            <img src="{{ url_for('main.processed_file', filename=filename) }}" class="image" id="after-image">
+            <img src="{{ url_for('main.processed_file', filename=filename) }}" class="image preview-image" id="after-image">
         </div>
         <div class="slider" id="slider"></div>
     </div>
     {% endif %}
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
     <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
 </body>
 </html>
-
-
-
-
-
-
 

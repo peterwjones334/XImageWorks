@@ -1,0 +1,11 @@
+Flask==3.0.0
+Flask-SQLAlchemy==3.1.1
+Flask-Uploads==0.2.1
+Flask-WTF==1.2.1
+Werkzeug==3.0.1
+Pillow==10.0.1
+numpy==1.26.2
+scipy==1.11.4
+opencv-python-headless==4.9.0.80
+scikit-image==0.23.2
+matplotlib==3.8.2
